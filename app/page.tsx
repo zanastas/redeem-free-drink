@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 export default function HomePage() {
@@ -73,10 +74,14 @@ export default function HomePage() {
 
       <footer className="w-full max-w-sm mx-auto pb-2 flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-gray-300" />
-          <span>webe cafe</span>
+          <div className="w-20 h-20 rounded-full overflow-hidden">
+            <Image src="/webe-cafe-logo.jpg" alt="webe cafe logo" width={80} height={80} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
         </div>
-        <span>Vibe coded by AI Fusion Labs</span>
+        <div className="flex items-center gap-2">
+          <span>Vibe coded by AI Fusion Labs</span>
+          <Image src="/aifusionlabs-logo.png" alt="AI Fusion Labs logo" width={30} height={30} />
+        </div>
       </footer>
 
       <Link id="redeem-link" href="/redeemed" className="hidden">
