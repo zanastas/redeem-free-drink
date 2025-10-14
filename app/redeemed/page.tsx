@@ -1,11 +1,13 @@
 import Image from "next/image";
+import { Indie_Flower } from "next/font/google";
+const indie = Indie_Flower({ subsets: ["latin"], weight: ["400"] });
 
 export default function RedeemedPage() {
   return (
     <main className="min-h-screen bg-white text-gray-900 flex flex-col items-center justify-between p-6 sm:p-8">
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center">
         <div className="pt-6 pb-4 text-center">
-          <h1 className="text-2xl font-semibold">Enjoy your free drink!</h1>
+          <h1 className={`text-3xl font-bold font-thick ${indie.className}`}>Enjoy your free drink!</h1>
         </div>
 
         <div className="my-10 w-48 h-48 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">

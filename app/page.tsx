@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Indie_Flower } from "next/font/google";
+const indie = Indie_Flower({ subsets: ["latin"], weight: ["400"] });
 import { useRef, useState } from "react";
 
 export default function HomePage() {
@@ -40,7 +42,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-white text-gray-900 flex flex-col items-center justify-between p-6 sm:p-8">
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center">
         <div className="pt-6 pb-4 text-center">
-          <h1 className="text-2xl font-semibold">Thank you for your contribution to 
+          <h1 className={`text-3xl font-bold font-thick leading-relaxed ${indie.className}`}>Thank you for your contribution to 
             <span className="block">AI Fusion Labs!</span>
           </h1>
         </div>

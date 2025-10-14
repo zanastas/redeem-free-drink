@@ -11,7 +11,13 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 .text-xs { font-size: 0.75rem; line-height: 1rem; }
 .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
 .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 2.25rem; line-height: 2.5rem; }
+.leading-relaxed { line-height: 1.75; }
+.leading-loose { line-height: 2; }
 .font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+/* Slightly thicken light fonts like Indie Flower without changing the face */
+.font-thick { text-shadow: 0.02em 0 0 currentColor, -0.02em 0 0 currentColor, 0 0.02em 0 currentColor, 0 -0.02em 0 currentColor; }
 .text-center { text-align: center; }
 .w-full { width: 100%; }
 .w-48 { width: 12rem; }
