@@ -30,6 +30,8 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 .h-14 { height: 3.5rem; }
 .h-16 { height: 4rem; }
 .h-20 { height: 5rem; }
+.h-24 { height: 6rem; }
+.h-32 { height: 8rem; }
 .h-10 { height: 2.5rem; }
 .h-48 { height: 12rem; }
 .h-5 { height: 1.25rem; }

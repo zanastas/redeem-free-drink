@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Indie_Flower } from "next/font/google";
 const indie = Indie_Flower({ subsets: ["latin"], weight: ["400"] });
 import { useRef, useState, useEffect } from "react";
-import CoffeeWebpFirstFrame from "./components/CoffeeWebpFirstFrame";
+import VideoFirstFrame from "./components/VideoFirstFrame";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
@@ -65,14 +65,14 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-gray-900 flex flex-col items-center justify-between p-6 sm:p-8 pb-footer">
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center">
-        <div className="pt-6 pb-4 text-center">
+        <div className="pt-6 pb-4 text-center h-32 flex flex-col justify-center">
           <h1 className={`text-3xl font-bold font-thick leading-relaxed ${indie.className}`}>Thank you for your contribution to 
             <span className="block">AI Fusion Labs!</span>
           </h1>
         </div>
 
           <div className="my-10 w-48 h-48 rounded-full overflow-hidden flex items-center justify-center">
-            <CoffeeWebpFirstFrame src="/coffee.webp" size={192} alt="Empty coffee cup" />
+            <VideoFirstFrame src="/coffee-logo.mp4" size={192} alt="Empty coffee cup" />
           </div>
 
         <div className="w-full mt-auto">
