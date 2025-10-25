@@ -40,27 +40,21 @@ export default function HomePage() {
         return;
       }
       if (redeeming) {
-        console.log('Already redeeming, ignoring duplicate attempt');
         return;
       }
       setRedeeming(true);
       try {
-        console.log('Attempting to redeem code:', code);
         const res = await fetch('/api/coupons/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
         const data = await res.json();
-        console.log('API response:', res.status, data);
         
         if (res.ok) {
           // Successfully redeemed
-          console.log('Success - redirecting to redeemed page');
           router.push(`/redeemed?c=${encodeURIComponent(code)}`);
         } else {
           // Any error (404 not found, 409 already redeemed, 400 invalid, 500 server error)
-          console.log('Error - redirecting to error page');
           router.push(`/error?c=${encodeURIComponent(code)}`);
         }
       } catch (error) {
-        console.log('Network error:', error);
         router.push(`/error?c=${encodeURIComponent(code)}`);
       }
     } else {

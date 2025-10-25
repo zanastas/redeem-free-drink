@@ -1,8 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import { Indie_Flower } from "next/font/google";
+import { useState } from "react";
 const indie = Indie_Flower({ subsets: ["latin"], weight: ["400"] });
 
 export default function RedeemedPage() {
+  const [isShaking, setIsShaking] = useState(false);
+
+  const handleCoffeeClick = () => {
+    if (isShaking) return; // Prevent multiple shakes
+    
+    setIsShaking(true);
+    // Reset shake after animation completes
+    setTimeout(() => {
+      setIsShaking(false);
+    }, 600);
+  };
   return (
     <main className="min-h-screen bg-white text-gray-900 flex flex-col items-center justify-between p-6 sm:p-8 pb-footer">
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center">
@@ -16,8 +30,12 @@ export default function RedeemedPage() {
             autoPlay 
             muted 
             playsInline
-            className="w-full h-full object-cover"
-            aria-label="Coffee cup"
+            onClick={handleCoffeeClick}
+            className={`w-full h-full object-cover cursor-pointer transition-transform duration-75 ${
+              isShaking ? 'animate-shake' : ''
+            }`}
+            aria-label="Coffee cup - click to shake!"
+            title="Click me to shake!"
           />
         </div>
 
