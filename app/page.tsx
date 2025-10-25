@@ -7,12 +7,16 @@ const indie = Indie_Flower({ subsets: ["latin"], weight: ["400"] });
 import { useRef, useState, useEffect } from "react";
 import VideoFirstFrame from "./components/VideoFirstFrame";
 import { useRouter } from "next/navigation";
+import { useCouponFromQuery, useCouponValidity } from "./hooks/useCoupon";
 
 export default function HomePage() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const knobRef = useRef<HTMLButtonElement | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
   const router = useRouter();
+  const code = useCouponFromQuery();
+  const status = useCouponValidity(code);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     setDragging(true);
@@ -21,13 +25,44 @@ export default function HomePage() {
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = async () => {
     if (!trackRef.current || !knobRef.current) return;
     const trackRect = trackRef.current.getBoundingClientRect();
     const knobRect = knobRef.current.getBoundingClientRect();
     const progress = (knobRect.right - trackRect.left) / trackRect.width;
+    
+    setDragging(false);
+    
     if (progress >= 0.8) {
-      router.push("/redeemed");
+      // redeem attempt
+      if (!code) {
+        router.push("/error");
+        return;
+      }
+      if (redeeming) {
+        console.log('Already redeeming, ignoring duplicate attempt');
+        return;
+      }
+      setRedeeming(true);
+      try {
+        console.log('Attempting to redeem code:', code);
+        const res = await fetch('/api/coupons/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+        const data = await res.json();
+        console.log('API response:', res.status, data);
+        
+        if (res.ok) {
+          // Successfully redeemed
+          console.log('Success - redirecting to redeemed page');
+          router.push(`/redeemed?c=${encodeURIComponent(code)}`);
+        } else {
+          // Any error (404 not found, 409 already redeemed, 400 invalid, 500 server error)
+          console.log('Error - redirecting to error page');
+          router.push(`/error?c=${encodeURIComponent(code)}`);
+        }
+      } catch (error) {
+        console.log('Network error:', error);
+        router.push(`/error?c=${encodeURIComponent(code)}`);
+      }
     } else {
       // snap back
       knobRef.current.style.transition = "transform 200ms ease";
@@ -36,7 +71,6 @@ export default function HomePage() {
         if (knobRef.current) knobRef.current.style.transition = "";
       }, 210);
     }
-    setDragging(false);
   };
 
   const handlePointerMove = (e: React.PointerEvent | PointerEvent) => {
@@ -49,18 +83,23 @@ export default function HomePage() {
     knobRef.current.style.transform = `translateX(${delta}px)`;
   };
 
-  // Capture pointer move/up globally while dragging so it doesn't feel sticky
+  // Capture pointer move globally while dragging so it doesn't feel sticky
   useEffect(() => {
     if (!dragging) return;
     const onMove = (e: PointerEvent) => handlePointerMove(e);
-    const onUp = () => handlePointerUp();
     window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
     return () => {
       window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
     };
   }, [dragging]);
+
+  // Pre-check on load
+  useEffect(() => {
+    if (status === 'invalid' || status === 'redeemed') {
+      const q = code ? `?c=${encodeURIComponent(code)}` : '';
+      router.replace(`/error${q}`);
+    }
+  }, [status, code, router]);
 
   return (
     <main className="min-h-screen bg-white text-gray-900 flex flex-col items-center justify-between p-6 sm:p-8 pb-footer">
