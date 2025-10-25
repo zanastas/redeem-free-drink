@@ -9,7 +9,8 @@
     "start": "next start",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "gen": "tsx scripts/generate-coupons.ts"
+    "gen": "tsx scripts/generate-coupons.ts",
+    "gen:prod": "tsx scripts/generate-production-coupons.ts"
   },
   "repository": {
     "type": "git",
