@@ -1,5 +1,5 @@
 import { normalizeCouponCode } from "./coupon-code";
-import { runRedisCommand, runRedisPipeline } from "./upstash";
+import { getRedisClient } from "./redis";
 
 export type CouponStatus = "available" | "redeemed" | "missing";
 
@@ -31,9 +31,10 @@ export async function getCouponStatus(rawCode: string | null | undefined) {
     return "missing" as const;
   }
 
-  const [exists, redeemed] = await runRedisPipeline<number>([
-    ["EXISTS", definitionKey(code)],
-    ["EXISTS", redemptionKey(code)],
+  const redis = await getRedisClient();
+  const [exists, redeemed] = await Promise.all([
+    redis.exists(definitionKey(code)),
+    redis.exists(redemptionKey(code)),
   ]);
 
   if (exists !== 1) {
@@ -49,9 +50,9 @@ export async function redeemCoupon(rawCode: string | null | undefined) {
     return "missing" as const;
   }
 
+  const redis = await getRedisClient();
   const now = new Date().toISOString();
-  const result = await runRedisCommand<string>([
-    "EVAL",
+  const result = await redis.eval(
     [
       "if redis.call('EXISTS', KEYS[1]) == 0 then",
       "  return 'missing'",
@@ -67,11 +68,11 @@ export async function redeemCoupon(rawCode: string | null | undefined) {
       "end",
       "return 'available'",
     ].join("\n"),
-    2,
-    definitionKey(code),
-    redemptionKey(code),
-    now,
-  ]);
+    {
+      keys: [definitionKey(code), redemptionKey(code)],
+      arguments: [now],
+    }
+  );
 
   return result as CouponStatus;
 }
@@ -79,22 +80,39 @@ export async function redeemCoupon(rawCode: string | null | undefined) {
 export async function seedCoupons(codes: string[], options?: { ttlSeconds?: number | null }) {
   const normalizedCodes = codes.map((code) => normalizeCouponCode(code));
   const ttlSeconds = options?.ttlSeconds ?? null;
-  const commands = normalizedCodes.map((code) => {
-    const command: Array<string | number> = ["SET", definitionKey(code), new Date().toISOString(), "NX"];
-    if (ttlSeconds) {
-      command.push("EX", ttlSeconds);
-    }
-    return command;
-  });
+  const redis = await getRedisClient();
+  const results = await Promise.all(
+    normalizedCodes.map((code) => {
+      const key = definitionKey(code);
+      const value = new Date().toISOString();
 
-  const results = await runRedisPipeline<"OK" | null>(commands);
-  const duplicates = normalizedCodes.filter((_, index) => results[index] === null);
+      if (ttlSeconds) {
+        return redis.set(key, value, { EX: ttlSeconds, NX: true });
+      }
+
+      return redis.set(key, value, { NX: true });
+    })
+  );
+
+  const duplicates = normalizedCodes.filter((_, index) => results[index] !== "OK");
 
   if (duplicates.length > 0) {
     throw new Error(`Duplicate coupon codes already exist: ${duplicates.join(", ")}`);
   }
 
   return normalizedCodes;
+}
+
+export async function closeRedisClient() {
+  if (!global.redisClientPromise) {
+    return;
+  }
+
+  const client = await global.redisClientPromise;
+  if (client.isOpen) {
+    await client.quit();
+  }
+  global.redisClientPromise = undefined;
 }
 
 export function getCouponTtlFromEnv() {

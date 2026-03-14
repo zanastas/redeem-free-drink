@@ -1,5 +1,5 @@
 import { generateCouponCodes } from "../lib/coupon-code";
-import { getCouponTtlFromEnv, seedCoupons } from "../lib/coupons";
+import { closeRedisClient, getCouponTtlFromEnv, seedCoupons } from "../lib/coupons";
 
 async function main() {
   const count = Number(process.env.COUNT || 50);
@@ -26,4 +26,7 @@ main()
   .catch((e) => {
     console.error("❌ Error generating codes:", e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await closeRedisClient();
   });

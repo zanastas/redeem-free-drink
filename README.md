@@ -5,8 +5,8 @@ Mobile-first Next.js microsite for redeeming one-time drink coupons.
 ### Stack
 
 - Next.js 14 App Router
-- Upstash Redis via Vercel Marketplace or local env vars
-- REST-based Redis access, no generated client or ORM
+- Redis via Vercel Marketplace or local env vars
+- Direct `REDIS_URL` connection from the Node runtime
 
 ### Local development
 
@@ -20,8 +20,7 @@ Open `http://localhost:3000`.
 Set these env vars locally:
 
 ```bash
-export UPSTASH_REDIS_REST_URL=...
-export UPSTASH_REDIS_REST_TOKEN=...
+export REDIS_URL=redis://default:password@host:port
 export BASE_URL=http://localhost:3000
 export COUNT=10
 ```
@@ -63,6 +62,7 @@ CODE1234,https://your-domain.vercel.app/?c=CODE1234
 ### Deploy on Vercel
 
 1. Add Upstash Redis from the Vercel Marketplace, or manually set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+1. Add a Redis provider from the Vercel Marketplace, or manually set `REDIS_URL`.
 2. Set `BASE_URL` to your public site URL if you use the generation scripts in Vercel or CI.
 3. Deploy normally. No Prisma generation, migrations, or SQL database setup is required.
 
