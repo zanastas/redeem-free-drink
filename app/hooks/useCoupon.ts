@@ -2,16 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-export function useCouponFromQuery() {
-  const [code, setCode] = useState<string | null>(null);
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const c = params.get("c");
-    setCode(c);
-  }, []);
-  return code;
-}
-
 export function useCouponValidity(code: string | null) {
   const [status, setStatus] = useState<"checking" | "ok" | "invalid" | "redeemed">("checking");
 
@@ -24,6 +14,7 @@ export function useCouponValidity(code: string | null) {
       setStatus("invalid");
       return;
     }
+
     let cancelled = false;
     (async () => {
       try {
@@ -41,10 +32,11 @@ export function useCouponValidity(code: string | null) {
         } else {
           setStatus("ok");
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) setStatus("invalid");
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -52,5 +44,3 @@ export function useCouponValidity(code: string | null) {
 
   return status;
 }
-
-
