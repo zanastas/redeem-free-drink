@@ -1,4 +1,4 @@
-import prisma from "../../../../lib/db";
+import { redeemCoupon } from "../../../../lib/coupons";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -8,26 +8,21 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const code = (payload.code || "").trim();
-  if (!code || code.length !== 8) {
+  const code = payload.code;
+  if (!code) {
     return NextResponse.json({ error: "Invalid code" }, { status: 400 });
   }
 
   try {
-    const update = await prisma.coupon.updateMany({
-      where: { code, redeemedAt: null },
-      data: { redeemedAt: new Date() },
-    });
-    if (update.count === 1) {
+    const status = await redeemCoupon(code);
+    if (status === "available") {
       return NextResponse.json({ ok: true }, { status: 200 });
     }
-    // check existence to differentiate not found vs already redeemed
-    const exists = await prisma.coupon.findUnique({ where: { code } });
-    if (!exists) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (status === "missing") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     return NextResponse.json({ error: "Already redeemed" }, { status: 409 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
-
